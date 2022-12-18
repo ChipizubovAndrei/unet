@@ -1,0 +1,5 @@
+.vscode/
+build/
+parameters/
+src/Layer.h
+*.png
