@@ -5,10 +5,6 @@
 class UpSample
 {
 private:
-    typedef std::vector<float> Matrix1D;
-    typedef std::vector<std::vector<float>> Matrix2D;
-    typedef std::vector<std::vector<std::vector<float>>> Matrix3D;
-    typedef std::vector<std::vector<std::vector<std::vector <float>>>> Matrix4D;
 
     int m_in_channels; // Количество входных каналов
     int m_scale_factor; // Множитель пространственного размера
@@ -26,10 +22,12 @@ public:
         // std::cout << "Destroy UpLayer" << std::endl;
     };
 
-    /*Апсэмплинг
-    - prev_layer_out - выход с предыдущего слоя
-    - in_height - высота матрицы выхода предыдущего слоя
-    - in_width - ширина матрицы выхода предыдущего слоя
+    /*
+    Апсэмплинг
+    Аргументы:
+        - src - выходное изобрадение
+        - srcH - высота входного изображения
+        - srcW - ширина входного изображения
     */
-    Matrix3D UpSample2D(Matrix3D& prev_layer_out, unsigned int& in_height, unsigned int& in_width);
+    float* UpSample2D(float* src, unsigned int& srcH, unsigned int& srcW);
 };

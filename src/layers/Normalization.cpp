@@ -1,17 +1,18 @@
-#include <vector>
 #include "Normalization.h"
 
-
-void Normalization(Matrix3D& in_matrix, const int& height, const int& width, const int& channels)
+/*
+Функция нормализации входного изображения
+Аргументы:
+- src - возвращаемое нормализованное изображение
+- srcH - высота изображения
+- srcW - ширина изображения
+- srcC - количество каналов в изображениии
+*/
+void Normalization(float* src, const int& srcH, const int& srcW, const int& srcC)
 {
-    for (int y = 0; y < height; y++)
+    for (int ld = 0; ld < srcH*srcW*srcC; ld++)
     {
-        for (int x = 0; x < width; x++)
-        {
-            for (int c = 0; c < channels; c++)
-            {
-                in_matrix[y][x][c] = in_matrix[y][x][c] / 255;
-            }
-        }
+        *src++ = *src / 255;
     }
+
 }

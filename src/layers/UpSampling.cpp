@@ -1,33 +1,34 @@
-#include <vector>
 #include "UpSampling.h"
 
 
-UpSample::Matrix3D UpSample::UpSample2D(Matrix3D& prev_layer_out, unsigned int& in_height, unsigned int& in_width)
+float* UpSample::UpSample2D(float* src, unsigned int& srcH, unsigned int& srcW)
 {
-    int out_height = (int)(in_height*m_scale_factor);
-    int out_width = (int)(in_width*m_scale_factor);
+    int dstH = (int)(srcH*m_scale_factor);
+    int dstW = (int)(srcW*m_scale_factor);
 
-    Matrix3D out_matrix(out_height, Matrix2D(out_width, Matrix1D(m_in_channels)));
+    float* dst = new float [dstH*dstW*m_in_channels];
     
-    // Проход по изображению
-    for (int y = 0; y < (int)in_height; y++)
+    for (int sy = 0; sy < (int)srcH; sy++)
     {
-        for (int x = 0; x < (int)in_width; x++)
+        for (int sx = 0; sx < (int)srcW; sx++)
         {
-            for (int in_ch = 0; in_ch < m_in_channels; in_ch++)
+            for (int sc = 0; sc < m_in_channels; sc++)
             {
-                float value = prev_layer_out[y][x][in_ch];
-                for (int i = 0; i < m_scale_factor; i++)
+                float value = src[(sy*srcW + sx)*m_in_channels + sc];
+                for (int ky = 0; ky < m_scale_factor; ky++)
                 {
-                    for (int j = 0; j < m_scale_factor; j++)
+                    for (int kx = 0; kx < m_scale_factor; kx++)
                     {
-                        out_matrix[y*m_scale_factor+i][x*m_scale_factor+j][in_ch] = value;
+                        int dy = sy * m_scale_factor + ky;
+                        int dx = sx * m_scale_factor + kx;
+                        dst[(dy*dstW + dx)*m_in_channels + sc] = value;
                     }
                 }
             }
         }
     }
-    in_height = out_height;
-    in_width = out_width;
-    return out_matrix;
+    srcH = dstH;
+    srcW = dstW;
+    delete [] src;
+    return dst;
 }

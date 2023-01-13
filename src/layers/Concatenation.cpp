@@ -1,30 +1,29 @@
-#include <vector>
 #include "Concatenation.h"
 
-Concatenation::Matrix3D Concatenation::Concatenation2D(Matrix3D& up_layer_out, Matrix3D& conv_layer_out, unsigned int& in_height, unsigned int& in_width)
+float* Concatenation::Concatenation2D(float* src, float* clo, unsigned int& srcH, unsigned int& srcW)
 {
-    int out_channels = (int)(2*m_in_channels);
+    int dstC = (int)(2*m_srcC);
 
-    Matrix3D out_matrix(in_height, Matrix2D(in_width, Matrix1D(out_channels)));
+    float* dst = new float [srcH*srcW*dstC];
     
-    // Перебор по фильтрам (выходным каналам)
-    for (int y = 0; y < (int)in_height; y++)
+    for (int sy = 0; sy < (int)srcH; sy++)
     {
-        // Проход по изображению
-        for (int x = 0; x < (int)in_width; x++)
+        for (int sx = 0; sx < (int)srcW; sx++)
         {
-            for (int ch = 0; ch < out_channels; ch++)
+            for (int sc = 0; sc < dstC; sc++)
             {
-                if (ch < m_in_channels)
+                if (sc < m_srcC)
                 {
-                    out_matrix[y][x][ch] = conv_layer_out[y][x][ch];
+                    dst[(sy*srcW + sx)*dstC + sc] = clo[(sy*srcW + sx)*m_srcC + sc];
                 }
                 else
                 {
-                    out_matrix[y][x][ch] = up_layer_out[y][x][ch - m_in_channels];
+                    dst[(sy*srcW + sx)*dstC + sc] = src[(sy*srcW + sx)*m_srcC + sc - m_srcC];
                 }
             }
         }
     }
-    return out_matrix;
+    delete [] clo;
+    delete [] src;
+    return dst;
 }

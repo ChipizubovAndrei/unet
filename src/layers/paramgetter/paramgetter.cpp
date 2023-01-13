@@ -6,8 +6,7 @@ using namespace std;
 
 void ParameterGetter(const char* path, float* data_out, const int out_channels, const int in_channels, const int kernel_size)
 {
-    const H5std_string FILE_NAME( "../parameters/unet_5.hdf5" );
-    // const H5std_string FILE_NAME( "../parameters/SDS.hdf5" );
+    const H5std_string FILE_NAME( "../parameters/unet(leakyrelu).hdf5" );
     const H5std_string DATASET_NAME( path );
 
     H5File file( FILE_NAME, H5F_ACC_RDONLY );

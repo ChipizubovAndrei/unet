@@ -1,87 +1,74 @@
-#include <vector>
 #include <cmath>
 #include "Activations.h"
 
-
-void ReLU(Matrix3D& in_matrix, const int& height, const int& width, const int& channels)
+void ReLU(float* src, const int& srcH, const int& srcW, const int& srcC)
 {
-    for (int y = 0; y < height; y++)
+    for (int ld = 0; ld < srcH*srcW*srcC; ld++)
     {
-        for (int x = 0; x < width; x++)
+        if (*src < 0)
         {
-            for (int c = 0; c < channels; c++)
-            {
-                if (in_matrix[y][x][c] < 0)
-                {
-                    in_matrix[y][x][c] = 0;
-                }
-            }
+            *src = 0;
         }
+        src++;
     }
 }
 
-void LeakyReLU(Matrix3D& in_matrix, const int& height, const int& width, const int& channels, float negative_slope)
+void LeakyReLU(float* src, const int& srcH, const int& srcW, const int& srcC, float negative_slope)
 {
-    for (int y = 0; y < height; y++)
+    for (int ld = 0; ld < srcH*srcW*srcC; ld++)
     {
-        for (int x = 0; x < width; x++)
+        if (*src < 0)
         {
-            for (int c = 0; c < channels; c++)
-            {
-                if (in_matrix[y][x][c] < 0)
-                {
-                    in_matrix[y][x][c] = negative_slope * in_matrix[y][x][c];
-                }
-            }
+            *src = negative_slope * (*src);
         }
+        src++;
     }
 }
 
-void ELU(Matrix3D& in_matrix, const int& height, const int& width, const int& channels, float alpha)
+void ELU(float* src, const int& srcH, const int& srcW, const int& srcC, float alpha)
 {
     float E = 3.1415;
-    for (int y = 0; y < height; y++)
+    for (int ld = 0; ld < srcH*srcW*srcC; ld++)
     {
-        for (int x = 0; x < width; x++)
+        if (*src < 0)
         {
-            for (int c = 0; c < channels; c++)
-            {
-                if (in_matrix[y][x][c] < 0)
-                {
-                    in_matrix[y][x][c] = alpha * (pow(E, in_matrix[y][x][c]) - 1);
-                }
-            }
+            *src = alpha * (pow(E, *src) - 1);
         }
+        src++;
     }
 }
 
-Matrix3D Softmax(Matrix3D& in_matrix, const int& height, const int& width, const int& in_channels)
+float* Softmax(float* src, const int& srcH, const int& srcW, const int& srcC)
 {
+    // Количество выходных каналов
+    int dstC = 3;
     int segments[5][3] = {{0, 0, 0}, {0, 0, 255}, {0, 255, 255}, {255, 0, 255}, {255, 255, 0}};
-    int max_ch_val;
-    Matrix3D out_matrix(height, std::vector<std::vector<float>>(width, std::vector<float>(3)));
-    for (int y = 0; y < height; y++)
+    int max_sc_val;
+    float* dst = new float [srcH*srcW*dstC];
+
+    for (int sy = 0; sy < srcH; sy++)
     {
-        for (int x = 0; x < width; x++)
+        for (int sx = 0; sx < srcW; sx++)
         {
-            for (int ch = 0; ch < in_channels; ch++)
+            for (int sc = 0; sc < srcC; sc++)
             {
-                if (ch == 0)
+                if (sc == 0)
                 {
-                    max_ch_val = 0;
+                    max_sc_val = 0;
                 }
                 else
                 {
-                    if (in_matrix[y][x][ch] > in_matrix[y][x][max_ch_val])
+                    if (src[(sy*srcW + sx)*srcC + sc] > src[(sy*srcW + sx)*srcC + max_sc_val])
                     {
-                        max_ch_val = ch;
+                        max_sc_val = sc;
                     }
                 }
             }
-            out_matrix[y][x][0] = segments[max_ch_val][0];
-            out_matrix[y][x][1] = segments[max_ch_val][1];
-            out_matrix[y][x][2] = segments[max_ch_val][2];
+            dst[(sy*srcW + sx)*dstC + 0] = segments[max_sc_val][0];
+            dst[(sy*srcW + sx)*dstC + 1] = segments[max_sc_val][1];
+            dst[(sy*srcW + sx)*dstC + 2] = segments[max_sc_val][2];
         }
     }
-    return out_matrix;
+    delete [] src;
+    return dst;
 }

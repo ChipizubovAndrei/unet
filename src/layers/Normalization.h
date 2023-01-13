@@ -1,5 +1,11 @@
 #pragma once
 
-using Matrix3D = std::vector<std::vector<std::vector<float>>>;
-
-void Normalization(Matrix3D& in_matrix, const int& height, const int& width, const int& channels);
+/*
+Функция нормализации входного изображения
+Аргументы:
+- src - возвращаемое нормализованное изображение
+- srcH - высота изображения
+- srcW - ширина изображения
+- srcC - количество каналов в изображениии
+*/
+void Normalization(float* src, const int& srcH, const int& srcW, const int& srcC);

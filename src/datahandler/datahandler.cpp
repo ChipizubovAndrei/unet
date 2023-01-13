@@ -1,60 +1,80 @@
-#include <vector>
 #include "datahandler.h"
 #include "../../include/lodepng/lodepng.h"
 
 /*
-Функция считывает изображение в вектор char и переводит в 3D массив с 3 каналами RGB типов int.
+Функция считывает изображение в вектор char и переводит в 1D массив с 3 каналами RGB типов int.
 [каналы, высота, ширина]
+Аргументы:
+- path - путь к изображению
+- output - возвращаемый массив
+- srcH - возвращаемое значание высоты изображения
+- srcW - возврщаемое значение ширины изображения
 */
-void ReadImage(const char* path, Matrix3D& output, unsigned int& width, unsigned int& height)
+void ReadImage(const char* path, float*& output, unsigned int& srcH, unsigned int& srcW)
 {
+    // Количество выходных каналов
+    int srcC = 3;
 
-    std::vector<unsigned char> image;
+    // std::vector<unsigned char> image;
+    unsigned char* image = 0;
 
-    // const char* path = "/home/galahad/Documents/5_course/1_semester/SRW/data/mask_full.png";
-    unsigned error = lodepng::decode(image, width, height, path);
+    unsigned error = lodepng_decode32_file(&image, &srcW, &srcH, path);
 
-    // if(error) 
-    // {
-    //     std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-    // }
+    if(error) printf("error %u: %s\n", error, lodepng_error_text(error));
 
-    output.resize(height, std::vector<std::vector<float>>(width, std::vector<float>(3)));
+    output = new float [srcH*srcW*srcC];
+    float* buf = output;
 
-
-    for (int i = 0; i < (int)height; i++)
+    for (int i = 0; i < (int)srcH; i++)
     {
-        for (int j = 0; j < (int)width; j++)
+        for (int j = 0; j < (int)srcW; j++)
         {
-            int index_1D = i*width*4 + j*4;
+            // output[(i*srcW + j)*srcC] = (int)*image++;
+            // output[(i*srcW + j)*srcC + 1] = (int)*image++;
+            // output[(i*srcW + j)*srcC + 2] = (int)*image++;
+            // image++;
 
-            output[i][j][0] = (int)image[index_1D];
-            output[i][j][1] = (int)image[index_1D + 1];
-            output[i][j][2] = (int)image[index_1D + 2];
+            *buf++ = (int)*image++;
+            *buf++ = (int)*image++;
+            *buf++ = (int)*image++;
+            image++;
         }
     }
 }
 
 /*
 Функция переводит 3D масив в вектор типов char с 4 каналами RGBA и записывает в файл.
+Аргументы:
+- path - путь к изображению
+- src - входное изображение
+- srcH - высота изображения
+- srcW - ширина изображения
 */
-void WriteImage(const char* path, const Matrix3D& image3d ,unsigned int& width, unsigned int& height)
+void WriteImage(const char* path, float* src ,unsigned int& srcH, unsigned int& srcW)
 {
-    std::vector<unsigned char> output = std::vector<unsigned char>(width*height*4);
-    for (int i = 0; i < (int)height; i++)
-    {
-        for (int j = 0; j < (int)width; j++)
-        {
-            int index_1D = i*width*4 + j*4;
+    // Количество каналов в png
+    int pngC = 4;
+    unsigned char* output = new unsigned char [srcH*srcW*pngC];
+    // unsigned char* buf = output;
 
-            output[index_1D] = (char)image3d[i][j][0];
-            output[index_1D + 1] = (char)image3d[i][j][1];
-            output[index_1D + 2] = (char)image3d[i][j][2];
-            output[index_1D + 3] = (char)255;
+    for (int i = 0; i < (int)srcH; i++)
+    {
+        for (int j = 0; j < (int)srcW; j++)
+        {
+
+            output[(i*srcW + j)*pngC] = (char)*src++;
+            output[(i*srcW + j)*pngC + 1] = (char)*src++;
+            output[(i*srcW + j)*pngC + 2] = (char)*src++;
+            output[(i*srcW + j)*pngC + 3] = (char)255;
+
+            // *buf++ = (char)*src++;
+            // *buf++ = (char)*src++;
+            // *buf++ = (char)*src++;
+            // *buf++ = (char)255;
         }
     }
 
-    unsigned int error = lodepng::encode(path, output, width, height);
+    unsigned int error = lodepng_encode32_file(path, output, srcW, srcH);
 
-    // if(error) std::cout << "encoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+    if(error) printf("error %u: %s\n", error, lodepng_error_text(error));
 }

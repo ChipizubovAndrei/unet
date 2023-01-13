@@ -1,33 +1,31 @@
-#include <vector>
 #include <string.h>
 #include <cmath>
 #include "paramgetter/paramgetter.h"
 #include "BatchNormalization.h"
 
-void BatchNormalization::BatchNormalization2D(Matrix3D& prev_layer_out, unsigned int& in_height, unsigned int& in_width)
+void BatchNormalization::BatchNormalization2D(float* src, unsigned int& srcH, unsigned int& srcW)
 {
     float eps = 0.001;
-    for (int y = 0; y < (int)in_height; y++)
+    for (int sy = 0; sy < (int)srcH; sy++)
     {
-        for (int x = 0; x < (int)in_width; x++)
+        for (int sx = 0; sx < (int)srcW; sx++)
         {
-            for (int ch = 0; ch < m_in_channels; ch++)
+            for (int sc = 0; sc < m_srcC; sc++)
             {
-                prev_layer_out[y][x][ch] = m_gamma[ch]*(prev_layer_out[y][x][ch] - m_running_mean[ch]) / pow(m_running_var[ch] + eps, 0.5) + m_beta[ch];
-                // prev_layer_out[y][x][ch] = m_gamma[ch]*prev_layer_out[y][x][ch] + m_beta[ch];
+                src[(sy*srcH + sx)*m_srcC + sc] = m_gamma[sc]*(src[(sy*srcH + sx)*m_srcC + sc] - m_running_mean[sc]) / pow(m_running_var[sc] + eps, 0.5) + m_beta[sc];
             }
         }
     }
 }
 
-BatchNormalization::BatchNormalization(char* path_p2, int in_channels)
+BatchNormalization::BatchNormalization(char* path_p2, int srcC)
 {
-    m_in_channels = in_channels;
+    m_srcC = srcC;
 
-    m_beta = new float [m_in_channels];
-    m_gamma = new float [m_in_channels];
-    m_running_mean = new float [m_in_channels];
-    m_running_var = new float [m_in_channels];
+    m_beta = new float [m_srcC];
+    m_gamma = new float [m_srcC];
+    m_running_mean = new float [m_srcC];
+    m_running_var = new float [m_srcC];
 
     char path_beta[strlen(m_path_p1) + strlen(path_p2) + strlen(m_path_beta_p3) + 1] = "";
     char path_gamma [strlen(m_path_p1) + strlen(path_p2) + strlen(m_path_gamma_p3) + 1] = "";
@@ -50,10 +48,10 @@ BatchNormalization::BatchNormalization(char* path_p2, int in_channels)
     strcat(path_var, path_p2);
     strcat(path_var, m_path_var_p3);
 
-    ParameterGetter(path_beta, m_beta, in_channels, 0, 0);
-    ParameterGetter(path_gamma, m_gamma, in_channels, 0, 0);
-    ParameterGetter(path_mean, m_running_mean, in_channels, 0, 0);
-    ParameterGetter(path_var, m_running_var, in_channels, 0, 0);
+    ParameterGetter(path_beta, m_beta, srcC, 0, 0);
+    ParameterGetter(path_gamma, m_gamma, srcC, 0, 0);
+    ParameterGetter(path_mean, m_running_mean, srcC, 0, 0);
+    ParameterGetter(path_var, m_running_var, srcC, 0, 0);
 };
 
 BatchNormalization::~BatchNormalization()
