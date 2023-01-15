@@ -17,9 +17,13 @@ target_include_directories(parametergetter PRIVATE ${HDF5DIR}/include)
 target_link_directories(parametergetter PUBLIC ${HDF5DIR}/lib)
 target_link_libraries(parametergetter PRIVATE libhdf5.so libhdf5_cpp.so)
 
+# Библиотека матричного умножения
+add_library(matmul STATIC src/layers/gemm/matmul/matmul.cpp)
+add_library(transform STATIC src/layers/gemm/transformation/transform.cpp)
+
 # Библиотека со слоями нейронной сети
 add_library(layers STATIC ${LAYERS_CPPS})
-target_link_libraries(layers PUBLIC parametergetter)
+target_link_libraries(layers PUBLIC parametergetter matmul transform)
 
 # Библиотека для загрузки изображения
 add_library(lodepng STATIC ${LODEPNGDIR}/lodepng.cpp)

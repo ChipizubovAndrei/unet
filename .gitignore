@@ -1,5 +1,6 @@
 .vscode/
 build/
 parameters/
-src/Layer.h
+output/
 *.png
+*.txt
