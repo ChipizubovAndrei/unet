@@ -6,7 +6,7 @@
 void BatchNormalization::BatchNormalization2D(float* src, unsigned int& srcH, unsigned int& srcW)
 {
     float eps = 0.001;
-    #pragma omp parallel for 
+    // #pragma omp parallel for 
     for (int sy = 0; sy < (int)srcH; sy++)
     {
         for (int sx = 0; sx < (int)srcW; sx++)

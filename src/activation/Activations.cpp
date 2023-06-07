@@ -3,7 +3,7 @@
 
 void ReLU(float* src, const int& srcH, const int& srcW, const int& srcC)
 {
-    #pragma omp parallel for 
+    // #pragma omp parallel for 
     for (int ld = 0; ld < srcH*srcW*srcC; ld++)
     {
         if (*src < 0)
@@ -16,7 +16,7 @@ void ReLU(float* src, const int& srcH, const int& srcW, const int& srcC)
 
 void LeakyReLU(float* src, const int& srcH, const int& srcW, const int& srcC, float negative_slope)
 {
-    #pragma omp parallel for 
+    // #pragma omp parallel for 
     for (int ld = 0; ld < srcH*srcW*srcC; ld++)
     {
         if (*src < 0)
@@ -30,7 +30,7 @@ void LeakyReLU(float* src, const int& srcH, const int& srcW, const int& srcC, fl
 void ELU(float* src, const int& srcH, const int& srcW, const int& srcC, float alpha)
 {
     float E = 3.1415;
-    #pragma omp parallel for 
+    // #pragma omp parallel for 
     for (int ld = 0; ld < srcH*srcW*srcC; ld++)
     {
         if (*src < 0)
@@ -48,7 +48,7 @@ float* Softmax(float* src, const int& srcH, const int& srcW, const int& srcC)
     int segments[5][3] = {{0, 0, 0}, {0, 0, 255}, {0, 255, 255}, {255, 0, 255}, {255, 255, 0}};
     int max_sc_val;
     float* dst = new float [srcH*srcW*dstC];
-    #pragma omp parallel for 
+    // #pragma omp parallel for 
     for (int sy = 0; sy < srcH; sy++)
     {
         for (int sx = 0; sx < srcW; sx++)

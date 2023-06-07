@@ -126,9 +126,6 @@ float* Convolution::Convolution2D_GeMM(float* src, unsigned int& srcH,
 
     im2row(src, m_srcC, srcH, srcW, m_kernekYX, m_kernekYX, m_stride, m_pad, buf);
     gemm_avx(buf, m_weights, m_bias, dst, M, N, K);
-
-    
-    // gemm(1, 1, M, N, K, alpha, buf, 2, m_weights, 2, 1.0, dst, 2);
     
     delete [] buf;
     return dst;

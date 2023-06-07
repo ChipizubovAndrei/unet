@@ -6,7 +6,7 @@ float* UpSample::UpSample2D(float* src, unsigned int& srcH, unsigned int& srcW)
     int dstW = (int)(srcW*m_scale_factor);
 
     float* dst = new float [dstH*dstW*m_srcC];
-    #pragma omp parallel for 
+    // #pragma omp parallel for 
     for (int sy = 0; sy < (int)srcH; sy++)
     {
         for (int sx = 0; sx < (int)srcW; sx++)
