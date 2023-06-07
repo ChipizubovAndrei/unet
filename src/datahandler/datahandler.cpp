@@ -29,11 +29,6 @@ void ReadImage(const char* path, float*& output, unsigned int& srcH, unsigned in
     {
         for (int j = 0; j < (int)srcW; j++)
         {
-            // output[(i*srcW + j)*srcC] = (int)*image++;
-            // output[(i*srcW + j)*srcC + 1] = (int)*image++;
-            // output[(i*srcW + j)*srcC + 2] = (int)*image++;
-            // image++;
-
             *buf++ = (int)*image++;
             *buf++ = (int)*image++;
             *buf++ = (int)*image++;
@@ -55,22 +50,16 @@ void WriteImage(const char* path, float* src ,unsigned int& srcH, unsigned int& 
     // Количество каналов в png
     int pngC = 4;
     unsigned char* output = new unsigned char [srcH*srcW*pngC];
-    // unsigned char* buf = output;
+    unsigned char* buf = output;
 
     for (int i = 0; i < (int)srcH; i++)
     {
         for (int j = 0; j < (int)srcW; j++)
         {
-
-            output[(i*srcW + j)*pngC] = (char)*src++;
-            output[(i*srcW + j)*pngC + 1] = (char)*src++;
-            output[(i*srcW + j)*pngC + 2] = (char)*src++;
-            output[(i*srcW + j)*pngC + 3] = (char)255;
-
-            // *buf++ = (char)*src++;
-            // *buf++ = (char)*src++;
-            // *buf++ = (char)*src++;
-            // *buf++ = (char)255;
+            *buf++ = (char)*src++;
+            *buf++ = (char)*src++;
+            *buf++ = (char)*src++;
+            *buf++ = (char)255;
         }
     }
 

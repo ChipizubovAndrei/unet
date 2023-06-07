@@ -1,42 +1,37 @@
+#include "gemm/transformation/transform.h"
 #include "MaxPooling.h"
 
 
 float* MaxPool::MaxPool2D(float* src, unsigned int& srcH, unsigned int& srcW)
 {
-    int dstH = (int)((srcH + 2 * m_padding - m_dilation * (m_kernel_size - 1) - 1) 
+    int dstH = (int)((srcH + 2 * m_padding - m_dilation * (m_kernelYX - 1) - 1) 
                             / m_stride + 1);
-    int dstW = (int)((srcW + 2 * m_padding - m_dilation * (m_kernel_size - 1) - 1) 
+    int dstW = (int)((srcW + 2 * m_padding - m_dilation * (m_kernelYX - 1) - 1) 
                             / m_stride + 1);
 
-    // Копируем входную матрицу
+    int M = dstH * dstW;
+    int K = m_kernelYX * m_kernelYX;
+
     float* dst = new float [dstH*dstW*m_srcC];
+    float* buf = new float [M*K*m_srcC];
     
-    // Проход по изображению
-    for (int dy = 0; dy < dstH; dy++)
+    im2row(src, m_srcC, srcH, srcW, m_kernelYX, m_kernelYX, m_stride, 0, buf);
+    #pragma omp parallel for 
+    for (int m = 0; m < M; m++)
     {
-        for (int dx = 0; dx < dstW; dx++)
+        float* pdst = dst + m*m_srcC;
+        for (int k = 0; k < m_kernelYX*m_kernelYX; k++)
         {
-            for (int ky = 0; ky < m_kernel_size; ky++)
+            float* pbuf = buf + (m*K + k)*m_srcC;
+            for (int n = 0; n < m_srcC; n++)
             {
-                for (int kx = 0; kx < m_kernel_size; kx++)
+                if (k == 0)
                 {
-                    for (int sc = 0; sc < m_srcC; sc++)
-                    {
-                        int sy = dy*m_stride + ky;
-                        int sx = dx*m_stride + kx;
-                        float value = src[(sy*srcH + sx)*m_srcC + sc];
-                        if (ky == 0 && kx == 0)
-                        {
-                            dst[(dy*dstW + dx)*m_srcC + sc] = value;
-                        }
-                        else
-                        {
-                            if (dst[(dy*dstW + dx)*m_srcC + sc] < value)
-                            {
-                                dst[(dy*dstW + dx)*m_srcC + sc] = value;
-                            }
-                        }
-                    }
+                    pdst[n] = pbuf[n];
+                }
+                else if (pbuf[n] > pdst[n])
+                {
+                    pdst[n] = pbuf[n];
                 }
             }
         }

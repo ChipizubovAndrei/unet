@@ -1,5 +1,5 @@
 #include <iostream>
-#include <ctime>
+#include <chrono>
 #include <stdio.h>
 #include "src/datahandler/datahandler.h"
 #include "src/layers/Convolutional.h"
@@ -12,17 +12,27 @@
 
 using namespace std;
 
+float* conv(float* src, unsigned int& srcH, unsigned int& srcW, 
+            int srcC,  int dstC, char* conv_1, int kernel_size = 3, int pad = 1)
+{
+    Convolution conv_1_1(conv_1, srcC, dstC, kernel_size, pad, 1);
+    src = conv_1_1.Convolution2D_GeMM(src, srcH, srcW);
+    return src;
+}
+
 float* conv_block(float* src, unsigned int& srcH, unsigned int& srcW, int srcC,  int dstC,
             char* conv_1, char* batch_1, char* conv_2, char* batch_2)
 {
-    Convolution conv_1_1(conv_1, srcC, dstC, 3, 1, 1);
-    src = conv_1_1.Convolution2D_GeMM(src, srcH, srcW);
+    // Convolution conv_1_1(conv_1, srcC, dstC, 3, 1, 1);
+    // src = conv_1_1.Convolution2D_GeMM(src, srcH, srcW);
+    src = conv(src, srcH, srcW, srcC, dstC, conv_1);
     LeakyReLU(src, srcH, srcW, dstC, 0.3);
     BatchNormalization batch_1_1(batch_1, dstC);
     batch_1_1.BatchNormalization2D(src, srcH, srcW);
 
-    Convolution conv_1_2(conv_2, dstC, dstC, 3, 1, 1);
-    src = conv_1_2.Convolution2D_GeMM(src, srcH, srcW);
+    // Convolution conv_1_2(conv_2, dstC, dstC, 3, 1, 1);
+    // src = conv_1_2.Convolution2D_GeMM(src, srcH, srcW);
+    src = conv(src, srcH, srcW, dstC, dstC, conv_2);
     LeakyReLU(src, srcH, srcW, dstC, 0.3);
     BatchNormalization batch_1_2(batch_2, dstC);
     batch_1_2.BatchNormalization2D(src, srcH, srcW);
@@ -47,8 +57,12 @@ float* up_block(float* src, unsigned int& srcH, unsigned int& srcW,
 
 int main()
 {
-    time_t start, end;
-    time(&start);
+    using std::chrono::high_resolution_clock;
+    using std::chrono::duration_cast;
+    using std::chrono::duration;
+    using std::chrono::milliseconds;
+
+    auto t1 = high_resolution_clock::now();
 
     unsigned int height, width;
     
@@ -59,9 +73,6 @@ int main()
     float* output_blok_3;
     float* output_blok_4;
     float* output_image;
-
-    const char* path2image = "/home/galahad/Documents/5_course/1_semester/SRW/data/Abies Sibirica Dataset/Abies Sibirica Dataset/fragments/validation/x/323.png";
-    const char* path2save = "/home/galahad/Documents/5_course/1_semester/SRW/unet_v_01/output/mask_323.png";
 
     char* conv_1 = "conv2d/conv2d";
     char* batch_1 = "batch_normalization/batch_normalization";
@@ -120,6 +131,9 @@ int main()
 
     char* conv_23 = "conv2d_22/conv2d_22";
 
+    const char* path2image = "/home/galahad/Documents/5_course/1_semester/SRW/data/Abies Sibirica Dataset/Abies Sibirica Dataset/fragments/validation/x/875.png";
+    const char* path2save = "/home/galahad/Documents/5_course/1_semester/SRW/unet_v_01/output/mask_875.png";
+
     ReadImage(path2image, original_image, width, height);
 
     Normalization(original_image, height, width, 3);
@@ -156,13 +170,11 @@ int main()
     Concatenation merge_6 = Concatenation(256, 512);
     output = merge_6.Concatenation2D(output, output_blok_3, height, width);
 
-
     cout << "Седьмой блок" << endl;
     output = conv_block(output, height, width, 512, 256, conv_15, batch_15, conv_16, batch_16);
     output = up_block(output, height, width, 256, 128, conv_17, batch_17);
     Concatenation merge_7 = Concatenation(128, 256);
     output = merge_7.Concatenation2D(output, output_blok_2, height, width);
-
 
     cout << "Восьмой блок" << endl;
     output = conv_block(output, height, width, 256, 128, conv_18, batch_18, conv_19, batch_19);
@@ -173,15 +185,16 @@ int main()
     cout << "Девятый блок" << endl;
     output = conv_block(output, height, width, 128, 64, conv_21, batch_21, conv_22, batch_22);
 
-    cout << "Десятый блок" << endl;
     Convolution conv_9_3(conv_23 , 64, 5, 1, 0, 1);
     output = conv_9_3.Convolution2D_GeMM(output, height, width);
+    // output = conv(output, height, width, 64, 5, conv_23, 1, 0);
+    
     output_image = Softmax(output, height, width, 5);
 
     WriteImage(path2save, output_image, height, width);
 
-    time(&end);
-    double seconds = difftime(end, start);
-    printf("The time: %f seconds\n", seconds);
+    auto t2 = high_resolution_clock::now();
+    duration<double, std::milli> ms_double = (t2 - t1) / 1000;
+    printf("Total time = %f seconds\n", ms_double);
     return 0;
 }

@@ -10,6 +10,7 @@
 */
 void Normalization(float* src, const int& srcH, const int& srcW, const int& srcC)
 {
+    #pragma omp parallel for 
     for (int ld = 0; ld < srcH*srcW*srcC; ld++)
     {
         *src++ = *src / 255;

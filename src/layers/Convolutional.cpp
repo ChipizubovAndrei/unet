@@ -1,4 +1,3 @@
-#include "iostream"
 #include <string.h>
 #include "gemm/matmul/matmul.h"
 #include "gemm/transformation/transform.h"
@@ -13,7 +12,7 @@ Convolution::Convolution(char* path_p2, const int in_channels,
     m_dstC = out_channels;
     m_kernekYX = kernel_size;
 
-    m_weights = new float [m_kernekYX*m_kernekYX*m_srcC*out_channels];
+    m_weights = new float [m_kernekYX*m_kernekYX*m_srcC*m_dstC];
     m_bias = new float [m_dstC];
 
     char path_kernel[strlen(m_path_p1) + strlen(path_p2) + strlen(m_path_kernel_p3) + 1] = "";
@@ -41,8 +40,10 @@ Convolution::Convolution(char* path_p2, const int in_channels,
     m_pad = padding;
     m_stride = stride;
 
-    m_weights = new float [m_kernekYX*m_kernekYX*m_srcC*out_channels];
+    m_weights = new float [m_kernekYX*m_kernekYX*m_srcC*m_dstC];
     m_bias = new float [m_dstC];
+    // m_weights = (float*)malloc(m_kernekYX*m_kernekYX*m_srcC*m_dstC*sizeof(float));
+    // m_bias = (float*)malloc(m_dstC * sizeof(float));
 
     char path_kernel[strlen(m_path_p1) + strlen(path_p2) + strlen(m_path_kernel_p3) + 1] = "";
     char path_bias [strlen(m_path_p1) + strlen(path_p2) + strlen(m_path_bias_p3) + 1] = "";
@@ -121,9 +122,13 @@ float* Convolution::Convolution2D_GeMM(float* src, unsigned int& srcH,
 
     float* buf = new float [M*K];
     float* dst = new float [dstH*dstW*m_dstC];
+    // float alpha = 1.0;
 
     im2row(src, m_srcC, srcH, srcW, m_kernekYX, m_kernekYX, m_stride, m_pad, buf);
-    gemm_v1(buf, m_weights, m_bias, dst, M, N, K);
+    gemm_avx(buf, m_weights, m_bias, dst, M, N, K);
+
+    
+    // gemm(1, 1, M, N, K, alpha, buf, 2, m_weights, 2, 1.0, dst, 2);
     
     delete [] buf;
     return dst;

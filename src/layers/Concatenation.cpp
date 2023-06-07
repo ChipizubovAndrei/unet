@@ -5,7 +5,7 @@ float* Concatenation::Concatenation2D(float* src, float* clo, unsigned int& srcH
     int dstC = (int)(2*m_srcC);
 
     float* dst = new float [srcH*srcW*dstC];
-    
+    #pragma omp parallel for 
     for (int sy = 0; sy < (int)srcH; sy++)
     {
         for (int sx = 0; sx < (int)srcW; sx++)

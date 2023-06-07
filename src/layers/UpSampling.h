@@ -6,14 +6,14 @@ class UpSample
 {
 private:
 
-    int m_in_channels; // Количество входных каналов
+    int m_srcC; // Количество входных каналов
     int m_scale_factor; // Множитель пространственного размера
 
 public:
 
     UpSample(const int in_channels, int scale_factor)
     {
-        m_in_channels = in_channels;
+        m_srcC = in_channels;
         m_scale_factor = scale_factor;
     };
     
