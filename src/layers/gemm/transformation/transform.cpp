@@ -5,7 +5,6 @@ void im2row(const float * src, int srcC, int srcH, int srcW,
 {
     int dstH = (srcH + 2 * pad - kernelY) / stride + 1;
     int dstW = (srcW + 2 * pad - kernelX) / stride + 1;
-    // #pragma omp parallel for 
     for (int dy = 0; dy < dstH; dy++)
     {
         for (int dx = 0; dx < dstW; dx++)

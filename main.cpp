@@ -12,6 +12,8 @@
 
 using namespace std;
 
+// #define PRINT_BLOCK 
+
 float* conv(float* src, unsigned int& srcH, unsigned int& srcW, 
             int srcC,  int dstC, char* conv_1, int kernel_size = 3, int pad = 1)
 {
@@ -137,52 +139,69 @@ int main()
     ReadImage(path2image, original_image, width, height);
 
     Normalization(original_image, height, width, 3);
-
+#ifdef PRINT_BLOCK
     cout << "Первый блок" << endl;
+#endif // PRINT_BLOCK
     output_blok_1 = conv_block(original_image, height, width, 3, 64, conv_1, batch_1, conv_2, batch_2);
     MaxPool pool_1(64, 2, 0, 2);
     output = pool_1.MaxPool2D(output_blok_1, height, width);
 
+#ifdef PRINT_BLOCK
     cout << "Второй блок" << endl;
+#endif // PRINT_BLOCK
     output_blok_2 = conv_block(output, height, width, 64, 128, conv_3, batch_3, conv_4, batch_4);
     MaxPool pool_2(128, 2, 0, 2);
     output = pool_2.MaxPool2D(output_blok_2, height, width);
 
+#ifdef PRINT_BLOCK
     cout << "Третий блок" << endl;
+#endif // PRINT_BLOCK
     output_blok_3 = conv_block(output, height, width, 128, 256, conv_5, batch_5, conv_6, batch_6);
     MaxPool pool_3(256, 2, 0, 2);
     output = pool_3.MaxPool2D(output_blok_3, height, width);
 
+#ifdef PRINT_BLOCK
     cout << "Четвертый блок" << endl;
+#endif // PRINT_BLOCK
     output_blok_4 = conv_block(output, height, width, 256, 512, conv_7, batch_7, conv_8, batch_8);
     MaxPool pool_4(512, 2, 0, 2);
     output = pool_4.MaxPool2D(output_blok_4, height, width);
 
+#ifdef PRINT_BLOCK
     cout << "Пятый блок" << endl;
+#endif // PRINT_BLOCK
     output = conv_block(output, height, width, 512, 1024, conv_9, batch_9, conv_10, batch_10);
     output = up_block(output, height, width, 1024, 512, conv_11, batch_11);
     Concatenation merge_5 = Concatenation(512, 1024);
     output = merge_5.Concatenation2D(output, output_blok_4, height, width);
 
+#ifdef PRINT_BLOCK
     cout << "Шестой блок" << endl;
+#endif // PRINT_BLOCK
     output = conv_block(output, height, width, 1024, 512, conv_12, batch_12, conv_13, batch_13);
     output = up_block(output, height, width, 512, 256, conv_14, batch_14);
     Concatenation merge_6 = Concatenation(256, 512);
     output = merge_6.Concatenation2D(output, output_blok_3, height, width);
 
+#ifdef PRINT_BLOCK
     cout << "Седьмой блок" << endl;
+#endif // PRINT_BLOCK
     output = conv_block(output, height, width, 512, 256, conv_15, batch_15, conv_16, batch_16);
     output = up_block(output, height, width, 256, 128, conv_17, batch_17);
     Concatenation merge_7 = Concatenation(128, 256);
     output = merge_7.Concatenation2D(output, output_blok_2, height, width);
 
+#ifdef PRINT_BLOCK
     cout << "Восьмой блок" << endl;
+#endif // PRINT_BLOCK
     output = conv_block(output, height, width, 256, 128, conv_18, batch_18, conv_19, batch_19);
     output = up_block(output, height, width, 128, 64, conv_20, batch_20);
     Concatenation merge_8 = Concatenation(64, 128);
     output = merge_8.Concatenation2D(output, output_blok_1, height, width);
-    
+
+#ifdef PRINT_BLOCK    
     cout << "Девятый блок" << endl;
+#endif // PRINT_BLOCK
     output = conv_block(output, height, width, 128, 64, conv_21, batch_21, conv_22, batch_22);
 
     Convolution conv_9_3(conv_23 , 64, 5, 1, 0, 1);

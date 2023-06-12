@@ -2,5 +2,8 @@
 build/
 parameters/
 output/
+include/
 *.png
 *.txt
+
+src/layers/gemm/matmul/cpu_calc_ops.h

@@ -4,6 +4,8 @@
 #include "paramgetter/paramgetter.h"
 #include "Convolutional.h"
 
+// #include "gemm/matmul/cpu_calc_ops.h"
+
 
 Convolution::Convolution(char* path_p2, const int in_channels, 
                         const int out_channels, const int kernel_size)
@@ -125,7 +127,7 @@ float* Convolution::Convolution2D_GeMM(float* src, unsigned int& srcH,
     // float alpha = 1.0;
 
     im2row(src, m_srcC, srcH, srcW, m_kernekYX, m_kernekYX, m_stride, m_pad, buf);
-    gemm_avx(buf, m_weights, m_bias, dst, M, N, K);
+    gemm_v5(buf, m_weights, m_bias, dst, M, N, K);
     
     delete [] buf;
     return dst;

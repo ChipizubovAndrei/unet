@@ -16,7 +16,7 @@ float* MaxPool::MaxPool2D(float* src, unsigned int& srcH, unsigned int& srcW)
     float* buf = new float [M*K*m_srcC];
     
     im2row(src, m_srcC, srcH, srcW, m_kernelYX, m_kernelYX, m_stride, 0, buf);
-    // #pragma omp parallel for 
+    #pragma omp parallel for 
     for (int m = 0; m < M; m++)
     {
         float* pdst = dst + m*m_srcC;

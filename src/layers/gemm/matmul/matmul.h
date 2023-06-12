@@ -43,43 +43,13 @@ void gemm_v1(const float* buf, const float* weight,
 void gemm_avx(const float* buf, const float* weight, 
     const float* bias, float* dst, int& M, int& N, int& K);
 
-void gemm_avx_v3(const float* buf, const float* weight, 
+void gemm_v3(const float* buf, const float* weight, 
     const float* bias, float* dst, int& M, int& N, int& K);
 
-void gemm_avx_v4(int M, int N, int K, const float * A, const float * B, float * C);
+void gemm_v4(const float* buf, const float* weight, 
+    const float* bias, float* dst, int& M, int& N, int& K);
 
-void gemm_v5(int M, int N, int K, const float * A, const float * B, float * C);
+void gemm_v5(const float* buf, const float* weight, 
+    const float* bias, float* dst, int& M, int& N, int& K);
 
-// template <typename Dtype>
-void gemm_nn(int M, int N, int K, float ALPHA,
-                float *A, int lda,
-                float *B, int ldb,
-                float *C, int ldc);
-
-
-void gemm_nt(int M, int N, int K, float ALPHA,
-                float *A, int lda,
-                float *B, int ldb,
-                float *C, int ldc);
-
-void gemm_tn(int M, int N, int K, float ALPHA,
-                float *A, int lda,
-                float *B, int ldb,
-                float *C, int ldc);
-
-void gemm_tt(int M, int N, int K, float ALPHA,
-                float *A, int lda,
-                float *B, int ldb,
-                float *C, int ldc);
-
-void gemm_cpu(int TA, int TB, int M, int N, int K, float ALPHA,
-                float *A, int lda,
-                float *B, int ldb,
-                float BETA,
-                float *C, int ldc);
-
-void gemm(int TA, int TB, int M, int N, int K, float ALPHA,
-            float *A, int lda,
-            float *B, int ldb,
-            float BETA,
-            float *C, int ldc);
+void add_bias(const float * bias, float * dst, int& M, int& N);
